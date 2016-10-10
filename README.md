@@ -7,6 +7,7 @@
   - Delta(),
   - Fermeture(),
   - Determinize().
+
 ### Loic
   - FromFile(),
   - Accept(),
