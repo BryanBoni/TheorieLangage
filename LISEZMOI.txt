@@ -1,0 +1,31 @@
+Rendu du projet LIF15 2016-2017
+===============================
+
+BONI   Bryan   #11405588
+JESAISPAS Loïc   #
+
+Langage C++
+
+Voir http://liris.cnrs.fr/sylvain.brandel/wiki/doku.php?id=archives:2015-2016:lif15:projet
+
+Contenu de l'archive
+--------------------
+
+LISEZMOI.txt      ce fichier
+
+Makefile          cibles  all, ndet, clean et cleanparser
+
+exemples/         exemples d'automates : D = Déterministe, ND = Non Déterministe,
+		                         NDE = Non Déterministe avec transitions spontanées
+src/expression_rationnelle.*
+		  définition de la structure de l'arbre syntaxique abstrait des expressions
+		  rationnelles
+src/parser* src/location.hh src/position.* src/stack.*
+		  tout ce qui concerne la lecture des expressions rationnelles
+		  il n'est pas utile de consulter ni de modifier ces fichiers
+src/ndet.cpp	  implémentation des automates non déterministes avec epsilon-transitions
+
+
+Commentaires
+------------
+

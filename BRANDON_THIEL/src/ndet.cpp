@@ -15,6 +15,7 @@
 // pour la seconde partie du projet
 #include "expression_rationnelle.hpp"
 #include "parser.hpp"
+
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +57,7 @@ struct sAutoNDE{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool FromFile(sAutoNDE& at, string path){
+bool FromFile(sAutoNDE& at, string path){ //Loïc
  ifstream myfile(path.c_str(), ios::in); 
   //un flux d'entree obtenu à partir du nom du fichier
  string line;
@@ -131,34 +132,39 @@ bool FromFile(sAutoNDE& at, string path){
   myfile.close();
   return true; 
 }
-return false;
-  // on ne peut pas ouvrir le fichier
+return false;// on ne peut pas ouvrir le fichier
 }
 
+/*
+-----------------------------------------------------------------------------
+|        Fonctions à compléter pour la première partie du projet            |
+-----------------------------------------------------------------------------
+*/
 
-// -----------------------------------------------------------------------------
-// Fonctions à compléter pour la première partie du projet
-// -----------------------------------------------------------------------------
-
-
-bool EstDeterministe(const sAutoNDE& at){
+bool EstDeterministe(const sAutoNDE& at){ // Bryan
   //TODO définir cette fonction
+  bool EstDeterministe = false;
 
-  return false;
+  if(EstDeterministe == true){
+    return true;
+  }else{
+    return false;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Fermeture(const sAutoNDE& at, etatset_t& e){
+void Fermeture(const sAutoNDE& at, etatset_t& e){ // Bryan
   // Cette fonction clot l'ensemble d'états E={e_0, e_1, ... ,e_n} passé en
   // paramètre avec les epsilon transitions
+  /*qui ajoute à l'ensemble d'états e tous ceux qui sont accessibles via des transitions spontanées. On pourra s'inspirer par exemple de l'algorithme de Warshall : https://fr.wikipedia.org/wiki/Algorithme_de_Warshall*/
 
   //TODO définir cette fonction
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-etatset_t Delta(const sAutoNDE& at, const etatset_t& e, symb_t c){
+etatset_t Delta(const sAutoNDE& at, const etatset_t& e, symb_t c){ // Bryan
   //TODO sur la base de celle pour le cas sans transitions spontanées,
   // définir cette fonction en utilisant Fermeture
 
@@ -167,7 +173,7 @@ etatset_t Delta(const sAutoNDE& at, const etatset_t& e, symb_t c){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Accept(const sAutoNDE& at, string str){
+bool Accept(const sAutoNDE& at, string str){ //Loïc
   //TODO définir cette fonction
 
   return false;
@@ -175,7 +181,7 @@ bool Accept(const sAutoNDE& at, string str){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sAutoNDE Determinize(const sAutoNDE& at){
+sAutoNDE Determinize(const sAutoNDE& at){ //Bryan
   sAutoNDE r;
 
   //TODO définir cette fonction
@@ -185,7 +191,7 @@ sAutoNDE Determinize(const sAutoNDE& at){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ostream& operator<<(ostream& out, const sAutoNDE& at){
+ostream& operator<<(ostream& out, const sAutoNDE& at){ //Loïc
   //TODO définir cette fonction
 
   return out;
@@ -193,7 +199,7 @@ ostream& operator<<(ostream& out, const sAutoNDE& at){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool ToGraph(sAutoNDE& at, string path){
+bool ToGraph(sAutoNDE& at, string path){ //Loïc
   //TODO définir cette fonction
 
   return false;
