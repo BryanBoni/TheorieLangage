@@ -49,8 +49,8 @@ struct sAutoNDE{
   trans_t trans;
   // matrice de transition : trans_t peut être un int***, une structure dynamique 3D comme vector< vector< set<int> > >
   // ou une autre structure de donnée de votre choix.
-  
-  epsilon_t epsilon; 
+
+  epsilon_t epsilon;
   // transitions spontanées : epsilon_t peut être un int**, une structure dynamique 2D comme vector< set<int> >
   // ou une autre structure de donnée de votre choix.
 };
@@ -58,7 +58,7 @@ struct sAutoNDE{
 ////////////////////////////////////////////////////////////////////////////////
 
 bool FromFile(sAutoNDE& at, string path){ //Loïc
- ifstream myfile(path.c_str(), ios::in); 
+ ifstream myfile(path.c_str(), ios::in);
   //un flux d'entree obtenu à partir du nom du fichier
  string line;
   // un ligne lue dans le fichier avec getline(myfile,line);
@@ -71,7 +71,7 @@ bool FromFile(sAutoNDE& at, string path){ //Loïc
 
  if (myfile.is_open()){
     // la première ligne donne 'nb_etats nb_symbs nb_finaux'
-  do{ 
+  do{
     getline(myfile,line);
   } while (line.empty() || line[0]=='#');
     // on autorise les lignes de commentaires : celles qui commencent par '#'
@@ -79,9 +79,9 @@ bool FromFile(sAutoNDE& at, string path){ //Loïc
   if((iss >> at.nb_etats).fail() || (iss >> at.nb_symbs).fail() || (iss >> at.nb_finaux).fail())
     return false;
     // la deuxième ligne donne l'état initial
-  do{ 
+  do{
     getline (myfile,line);
-  } while (line.empty() || line[0]=='#');    
+  } while (line.empty() || line[0]=='#');
   iss.clear();
   iss.str(line);
   if((iss >> at.initial).fail())
@@ -89,7 +89,7 @@ bool FromFile(sAutoNDE& at, string path){ //Loïc
 
     // les autres lignes donnent les états finaux
   for(size_t i = 0; i < at.nb_finaux; i++){
-    do{ 
+    do{
       getline (myfile,line);
     } while (line.empty() || line[0]=='#');
     iss.clear();
@@ -98,39 +98,41 @@ bool FromFile(sAutoNDE& at, string path){ //Loïc
       continue;
 //        cerr << "s= " << s << endl;
     at.finaux.insert(s);
-  }     
+  }
 
     // on alloue les vectors à la taille connue à l'avance pour éviter les resize dynamiques
   at.epsilon.resize(at.nb_etats);
   at.trans.resize(at.nb_etats);
   for(size_t i=0;i<at.nb_etats;++i)
-    at.trans[i].resize(at.nb_symbs);   
+    at.trans[i].resize(at.nb_symbs);
 
-  // lecture de la relation de transition 
+  // lecture de la relation de transition
   while(myfile.good()){
     line.clear();
     getline (myfile,line);
     if (line.empty() && line[0]=='#')
       continue;
     iss.clear();
-    iss.str(line); 
+    iss.str(line);
 
       // si une des trois lectures echoue, on passe à la suite
     if((iss >> s).fail() || (iss >> a).fail() || (iss >> t).fail() || (a< ASCII_A ) || (a> ASCII_Z ))
-      continue; 
+      continue;
 
       //test espilon ou non
     if ((a-ASCII_A) >= at.nb_symbs){
 //        cerr << "s=" << s<< ", (e), t=" << t << endl;
 // TODO: remplir epsilon
+        at.epsilon.push_back({s,t});
     }
     else{
 //        cerr << "s=" << s<< ", a=" << a-ASCII_A << ", t=" << t << endl;
 // TODO: remplir trans
+        at.trans[s][a].push_back({t});
     }
   }
   myfile.close();
-  return true; 
+  return true;
 }
 return false;// on ne peut pas ouvrir le fichier
 }
@@ -214,7 +216,7 @@ void Help(ostream& out, char *s){
   out << "-expr2aut ou expressionrationnelle2automate ExpressionRationnelle Output [-g] :\n\t calcule l'automate correspondant à ExpressionRationnelle, écrit l'automate résultant dans Output" << endl;
   out << "-equ ou -equivalent Input1 Intput2 :\n\t détermine si les deux automates Input1 et Input2 sont équivalents" << endl;
   out << "-nop ou -no_operation Input Output [-g] :\n\t ne fait rien de particulier, recopie l'entrée dans Output" << endl;
-  
+
   out << "Exemple '" << s << " -determinize auto.txt resultat -g" << endl;
 }
 
@@ -225,21 +227,21 @@ int main(int argc, char* argv[] ){
     Help(cout, argv[0]);
     return EXIT_FAILURE;
   }
-  
+
   int pos;
   int act=-1;                 // pos et act pour savoir quelle action effectuer
   int nb_ifiles = 0;          // nombre de fichiers en entrée
   int nb_ofiles = 0;          // nombre de fichiers en sortie
   string str, in1, in2, out, acc, expr;
   // chaines pour (resp.) tampon; fichier d'entrée Input1; fichier d'entrée Input2;
-  // fichier de sortie et chaine dont l'acceptation est à tester 
+  // fichier de sortie et chaine dont l'acceptation est à tester
   bool graphMode=false;     // sortie graphviz ?
 
   // options acceptées
   const size_t NBOPT = 8;
   string aLN[] = {"accept", "determinize", "is_terministic", "automate2expressionrationnelle", "expressionrationnelle2automate", "equivalent", "no_operation", "graph"};
   string aSN[] = {"acc", "det", "isdet", "aut2expr", "expr2aut", "equ", "nop", "g"};
-  
+
   // on essaie de "parser" chaque option de la ligne de commande
   for(int i=1; i<argc; ++i){
     if (DEBUG) cerr << "argv[" << i << "] = '" << argv[i] << "'" << endl;
@@ -247,11 +249,11 @@ int main(int argc, char* argv[] ){
     pos = -1;
     string* pL = find(aLN, aLN+NBOPT, str.substr(1));
     string* pS = find(aSN, aSN+NBOPT, str.substr(1));
-    
+
     if(pL!=aLN+NBOPT)
       pos = pL - aLN;
     if(pS!=aSN+NBOPT)
-      pos = pS - aSN;   
+      pos = pS - aSN;
 
     if(pos != -1){
       // (pos != -1) <=> on a trouvé une option longue ou courte
@@ -296,7 +298,7 @@ int main(int argc, char* argv[] ){
         out = argv[++i];
         nb_ifiles = 1;
         nb_ofiles = 1;
-        break;          
+        break;
         case 7: //g
         graphMode = true;
         break;
@@ -308,7 +310,7 @@ int main(int argc, char* argv[] ){
       cerr << "Option inconnue "<< str << endl;
       return EXIT_FAILURE;
     }
-    
+
     if(pos<7){
       if(act > -1){
         cerr << "Plusieurs actions spécififées"<< endl;
@@ -316,13 +318,13 @@ int main(int argc, char* argv[] ){
       }
       else
         act = pos;
-    }    
+    }
   }
-  
+
   if (act == -1){
     cerr << "Pas d'action spécififée"<< endl;
     return EXIT_FAILURE;
-  }  
+  }
 
   /* Les options sont OK, on va essayer de lire le(s) automate(s) at1 (et at2)
   et effectuer l'action spécifiée. Atr stockera le résultat*/
