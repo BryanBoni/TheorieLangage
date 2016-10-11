@@ -142,14 +142,24 @@ return false;// on ne peut pas ouvrir le fichier
 */
 
 bool EstDeterministe(const sAutoNDE& at){ // Bryan
-  //TODO définir cette fonction
-  bool EstDeterministe = false;
+  //Est deterministe si et seulement si une transion donne vers un seul état (ex: {Q1,Q2} --a--> {Q2,Q3,Q5}).
 
-  if(EstDeterministe == true){
-    return true;
-  }else{
-    return false;
+  for(unsigned int i = 0; i < at.epsilon.size(); i++){
+    if(at.epsilon[i].size() > 1){
+      return false; //car si au moins un ensemble vide en transition alors l'automate n'est pas déterministe.
+    }
   }
+  
+  for(unsigned  int i = 0; i < at.nb_etats; i++){
+    for(unsigned int j = 97; j < at.trans[i].size(); j++){//départ à 97 car c'est le code ascii de a.
+      if(at.trans[i][j].size() > 1){
+        return false;
+      }
+    }
+
+  }
+
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
