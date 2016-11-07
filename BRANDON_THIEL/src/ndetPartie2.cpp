@@ -217,78 +217,7 @@ int main(int argc, char* argv[] ){
   /* Les options sont OK, on va essayer de lire le(s) automate(s) at1 (et at2)
   et effectuer l'action spécifiée. Atr stockera le résultat*/
 /*
-  sAutoNDE at1, at2, atr;
   
-  // lecture du des fichiers en entrée
-  if ((nb_ifiles == 1 or nb_ifiles == 2) and !FromFile(at1, in1)){
-    cerr << "Erreur de lecture " << in1 << endl;
-    return EXIT_FAILURE;
-  }  
-  if (nb_ifiles ==2 and !FromFile(at2, in2)){
-    cerr << "Erreur de lecture " << in2 << endl;
-    return EXIT_FAILURE;
-  }  
-  
-  switch(act) {
-  case 0: //acc
-  if (Accept(at1, acc)){
-    cout << "'" << acc << "' est accepté : OUI\n";
-  }
-  else {
-    cout << "'" << acc << "' est accepté : NON\n";
-  }
-  break;
-  case 1: //det
-  atr = Determinize(at1);
-  break;
-  case 2: //isdet
-  if (EstDeterministe(at1)){
-    cout << "l'automate fourni en entrée est déterministe : OUI\n";
-  }
-  else {
-    cout << "l'automate fourni en entrée est déterministe : NON\n";
-  }
-  break;
-  case 3: //aut2expr
-  expr =  Automate2ExpressionRationnelle(at1);
-  cout << "Expression rationnelle résultante :" << endl << expr << endl;
-  break;
-  case 4: //expr2aut
-  atr =  ExpressionRationnelle2Automate(expr);
-  break;
-  case 5: //equ
-  if (Equivalent(at1,at2)){
-    cout << "les deux automates sont équivalents : OUI\n";
-  }
-  else {
-    cout << "les deux automates sont équivalents : NON\n";
-  }
-  break;
-  case 6: //nop
-  atr = at1;
-  break;
-  default:
-  return EXIT_FAILURE;
-}
-
-if (nb_ofiles == 1){
-    // on affiche le résultat
-    // cout << "Automate résultat :\n----------------\n";
-    // cout << atr;
-
-    // écriture dans un fichier texte
-  ofstream f((out + ".txt").c_str(), ios::trunc); 
-  if(f.fail())
-    return EXIT_FAILURE;
-  f << atr;    
-
-    // génération d'un fichier graphviz
-  if(graphMode){
-    ToGraph(atr, out + ".gv");
-    system(("dot -Tpng " + out + ".gv -o " + out + ".png").c_str());
-  }
-}
-
 return EXIT_SUCCESS;
 }
 */
