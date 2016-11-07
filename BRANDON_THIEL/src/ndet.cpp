@@ -123,12 +123,12 @@ bool FromFile(sAutoNDE& at, string path){ //Loïc
     if ((a-ASCII_A) >= at.nb_symbs){
 //        cerr << "s=" << s<< ", (e), t=" << t << endl;
 // TODO: remplir epsilon
-        at.epsilon.push_back({s,t});
+        at.epsilon[s].insert(t);
     }
     else{
 //        cerr << "s=" << s<< ", a=" << a-ASCII_A << ", t=" << t << endl;
 // TODO: remplir trans
-        at.trans[s][a].push_back({t});
+        at.trans[s][a-ASCII_A].insert(t);
     }
   }
   myfile.close();
@@ -185,20 +185,38 @@ etatset_t Delta(const sAutoNDE& at, const etatset_t& e, symb_t c){ // Bryan
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Accept(const sAutoNDE& at, string str){ //Loïc
-  //TODO définir cette fonction
-
-  return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 sAutoNDE Determinize(const sAutoNDE& at){ //Bryan
   sAutoNDE r;
 
   //TODO définir cette fonction
 
-  return r;
+  return r;	
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool Accept(const sAutoNDE& at, string str){ //Loïc
+  //TODO définir cette fonction
+  size_t i = 0;
+  /*vector<etat_t> eps;
+  vector<etat_t> next;
+  eps.push_back(at.initial);
+  while(i<str.size()){
+    while(!eps.empty()){
+      etat_t et = eps.pop_back();
+      for (std::vector<etat_t>::iterator it = at.epsilon[et].begin(); it != at.epsilon[et].end();++it)
+	eps.push_back(*it);
+      next.push_back(et);
+    }
+    
+  }*/
+  sAutoNDE aut = Determinize(at);
+	etat_t et = aut.initial;
+  while(i<=str.size()-1){
+		if(aut.trans[et][str[i]].empty()) i++;
+		else return false;
+  }
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
