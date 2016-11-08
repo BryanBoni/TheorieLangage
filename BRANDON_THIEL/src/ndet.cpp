@@ -213,17 +213,44 @@ bool Accept(const sAutoNDE& at, string str){ //Loïc
   sAutoNDE aut = Determinize(at);
   etat_t et = aut.initial;
   while(i<=str.size()-1){
-    if(aut.trans[et][str[i]].empty()) i++;
+    if(!aut.trans[et][str[i]-ASCII_A].empty()) {
+      i++;
+      et = aut.trans[et][str[i]-ASCII_A][0];
+    }
     else return false;
   }
-  return true;
+  
+  if (aut.finaux.find(et) != std::end )
+    return true;
+  else 
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ostream& operator<<(ostream& out, const sAutoNDE& at){ //Loïc
   //TODO définir cette fonction
+  out << at.nb_etats << " " << at.nb_symbs << " " << nb_finaux << "\n" << at.initial << "\n\n";
 
+  for(int i = 0 ; i < at.nb_finaux.size() ; i++ ){
+    out << at.finaux[i] << "\n";
+  }
+
+  out << "\n";
+
+  for (int i = 0 ; i < at.epsilon.size() ; i++){
+    for (int j = 0 ; j < at.epsilon[i].size() ; j++){
+      out << i << " " << static_cast<char>(at.nb_symbs + 1) << " " << at.epsilon[i][j] << "\n";
+    }
+  }
+
+  for (int i = 0 ; i < at.trans.size() ; i++){
+    for (int j = 0 ; j < at.trans[i].size() ; j++){
+      for (int k = 0 ; k < at.trans[i][j].size() ; k++){
+        out << i << " " << (char)(j+ASCII_A) << " " << at.trans[i][j][k] << "\n";
+      }
+    }
+  }
   return out;
 }
 
