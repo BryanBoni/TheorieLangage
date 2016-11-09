@@ -214,13 +214,13 @@ bool Accept(const sAutoNDE& at, string str){ //Loïc
   etat_t et = aut.initial;
   while(i<=str.size()-1){
     if(!aut.trans[et][str[i]-ASCII_A].empty()) {
+      et = *(aut.trans[et][str[i]-ASCII_A].begin());
       i++;
-      et = aut.trans[et][str[i]-ASCII_A][0];
     }
     else return false;
   }
   
-  if (aut.finaux.find(et) != std::end )
+  if (aut.finaux.find(et) != aut.finaux.end() )
     return true;
   else 
     return false;
@@ -230,24 +230,24 @@ bool Accept(const sAutoNDE& at, string str){ //Loïc
 
 ostream& operator<<(ostream& out, const sAutoNDE& at){ //Loïc
   //TODO définir cette fonction
-  out << at.nb_etats << " " << at.nb_symbs << " " << nb_finaux << "\n" << at.initial << "\n\n";
+  out << at.nb_etats << " " << at.nb_symbs << " " << at.nb_finaux << "\n" << at.initial << "\n\n";
 
-  for(int i = 0 ; i < at.nb_finaux.size() ; i++ ){
-    out << at.finaux[i] << "\n";
+  for(std::set<etat_t>::iterator it = at.finaux.begin() ; it != at.finaux.end() ; ++it ){
+    out << *it << "\n";
   }
 
   out << "\n";
 
-  for (int i = 0 ; i < at.epsilon.size() ; i++){
-    for (int j = 0 ; j < at.epsilon[i].size() ; j++){
-      out << i << " " << static_cast<char>(at.nb_symbs + 1) << " " << at.epsilon[i][j] << "\n";
+  for (unsigned int i = 0 ; i < at.epsilon.size() ; i++){
+    for (std::set<etat_t>::iterator it = at.epsilon[i].begin() ; it != at.epsilon[i].end() ; ++it){
+      out << i << " " << static_cast<char>(at.nb_symbs + 1) << " " << *it << "\n";
     }
   }
 
-  for (int i = 0 ; i < at.trans.size() ; i++){
-    for (int j = 0 ; j < at.trans[i].size() ; j++){
-      for (int k = 0 ; k < at.trans[i][j].size() ; k++){
-        out << i << " " << (char)(j+ASCII_A) << " " << at.trans[i][j][k] << "\n";
+  for (unsigned int i = 0 ; i < at.trans.size() ; i++){
+    for (unsigned int j = 0 ; j < at.trans[i].size() ; j++){
+      for (std::set<etat_t>::iterator it = at.trans[i][j].begin(); it != at.trans[i][j].end(); ++it){
+        out << i << " " << (char)(j+ASCII_A) << " " << *it << "\n";
       }
     }
   }
@@ -258,7 +258,20 @@ ostream& operator<<(ostream& out, const sAutoNDE& at){ //Loïc
 
 bool ToGraph(sAutoNDE& at, string path){ //Loïc
   //TODO définir cette fonction
-
+  std::ofstream outfile (path, std::ofstream::out);
+  outfile << "diagraph finite_state_machine {\n\trankdir=LR;\n\tsize=\"10,10\"\n\n node [shape = doublecircle]; ";
+  for(std::set<etat_t>::iterator it = at.finaux.begin(); it != at.finaux.end(); ++it){
+    outfile << *it << " ";
+  }
+  outfile << ";\n\tnode [shape = point ]; q;\n\tnode [shape = circle];\n\tq -> " << at.initial << ";\n";
+  for (unsigned int i = 0 ; i < at.trans.size() ; i++){
+    for (unsigned int j = 0 ; j < at.trans[i].size() ; j++){
+      for (std::set<etat_t>::iterator it = at.trans[i][j].begin(); it != at.trans[i][j].end(); ++it){
+        outfile << "\t" << i << " -> " << *it << " [label = \""<< (char)(j+ASCII_A) << "\"];\n";
+      }
+    }
+  }
+  outfile.close();
   return false;
 }
 
