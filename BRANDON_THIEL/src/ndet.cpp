@@ -60,81 +60,81 @@ struct sAutoNDE{
 bool FromFile(sAutoNDE& at, string path){
  ifstream myfile(path.c_str(), ios::in); 
   //un flux d'entree obtenu à partir du nom du fichier
-  string line;
+ string line;
   // un ligne lue dans le fichier avec getline(myfile,line);
-  istringstream iss;
+ istringstream iss;
   // flux associé à la chaine, pour lire morceau par morceau avec >> (comme cin)
-  etat_t s(0), t(0);
+ etat_t s(0), t(0);
   // deux états temporaires
-  symb_t a(0);
+ symb_t a(0);
   // un symbole temporaire
 
-  if (myfile.is_open()){
+ if (myfile.is_open()){
     // la première ligne donne 'nb_etats nb_symbs nb_finaux'
-    do{ 
-      getline(myfile,line);
-    } while (line.empty() || line[0]=='#');
+  do{ 
+    getline(myfile,line);
+  } while (line.empty() || line[0]=='#');
     // on autorise les lignes de commentaires : celles qui commencent par '#'
-    iss.str(line);
-    if((iss >> at.nb_etats).fail() || (iss >> at.nb_symbs).fail() || (iss >> at.nb_finaux).fail())
-        return false;
+  iss.str(line);
+  if((iss >> at.nb_etats).fail() || (iss >> at.nb_symbs).fail() || (iss >> at.nb_finaux).fail())
+    return false;
     // la deuxième ligne donne l'état initial
+  do{ 
+    getline (myfile,line);
+  } while (line.empty() || line[0]=='#');    
+  iss.clear();
+  iss.str(line);
+  if((iss >> at.initial).fail())
+    return -1;
+
+    // les autres lignes donnent les états finaux
+  for(size_t i = 0; i < at.nb_finaux; i++){
     do{ 
       getline (myfile,line);
-    } while (line.empty() || line[0]=='#');    
+    } while (line.empty() || line[0]=='#');
     iss.clear();
     iss.str(line);
-    if((iss >> at.initial).fail())
-      return -1;
-    
-    // les autres lignes donnent les états finaux
-    for(size_t i = 0; i < at.nb_finaux; i++){
-        do{ 
-          getline (myfile,line);
-        } while (line.empty() || line[0]=='#');
-        iss.clear();
-        iss.str(line);
-         if((iss >> s).fail())
-          continue;
+    if((iss >> s).fail())
+      continue;
 //        cerr << "s= " << s << endl;
-        at.finaux.insert(s);
-    }     
+    at.finaux.insert(s);
+  }     
 
     // on alloue les vectors à la taille connue à l'avance pour éviter les resize dynamiques
-    at.epsilon.resize(at.nb_etats);
-    at.trans.resize(at.nb_etats);
-    for(size_t i=0;i<at.nb_etats;++i)
-      at.trans[i].resize(at.nb_symbs);   
+  at.epsilon.resize(at.nb_etats);
+  at.trans.resize(at.nb_etats);
+  for(size_t i=0;i<at.nb_etats;++i)
+    at.trans[i].resize(at.nb_symbs);   
 
   // lecture de la relation de transition 
-    while(myfile.good()){
-      line.clear();
-      getline (myfile,line);
-      if (line.empty() && line[0]=='#')
-        continue;
-      iss.clear();
-      iss.str(line); 
+  while(myfile.good()){
+    line.clear();
+    getline (myfile,line);
+    if (line.empty() && line[0]=='#')
+      continue;
+    iss.clear();
+    iss.str(line); 
 
       // si une des trois lectures echoue, on passe à la suite
-      if((iss >> s).fail() || (iss >> a).fail() || (iss >> t).fail() || (a< ASCII_A ) || (a> ASCII_Z ))
-        continue; 
-              
+    if((iss >> s).fail() || (iss >> a).fail() || (iss >> t).fail() || (a< ASCII_A ) || (a> ASCII_Z ))
+      continue; 
+
       //test espilon ou non
-      if ((a-ASCII_A) >= at.nb_symbs){
+    if ((a-ASCII_A) >= at.nb_symbs){
 //        cerr << "s=" << s<< ", (e), t=" << t << endl;
 // TODO: remplir epsilon
       at.epsilon[s].insert(t);
-      }
-      else{
+    }
+    else{
 //        cerr << "s=" << s<< ", a=" << a-ASCII_A << ", t=" << t << endl;
 // TODO: remplir trans
       at.trans[s][a-ASCII_A].insert(t);
-      }
     }
-    myfile.close();
-    return true; 
- }
-  return false;
+  }
+  myfile.close();
+  return true; 
+}
+return false;
   // on ne peut pas ouvrir le fichier
 }
 
@@ -172,32 +172,85 @@ void Fermeture(const sAutoNDE& at, etatset_t& e){
   // paramètre avec les epsilon transitions
   /*qui ajoute à l'ensemble d'états e tous ceux qui sont accessibles via des transitions spontanées. On pourra s'inspirer par exemple de l'algorithme de Warshall : https://fr.wikipedia.org/wiki/Algorithme_de_Warshall*/
 
-  //TODO définir cette fonction
+  for(etatset_t  t : at.epsilon){ // chaque transition sont stocké dans e.
+    e.insert(t.begin(), t.end());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 etatset_t Delta(const sAutoNDE& at, const etatset_t& e, symb_t c){
-  //TODO sur la base de celle pour le cas sans transitions spontanées,
+  //sur la base de celle pour le cas sans transitions spontanées,
   // définir cette fonction en utilisant Fermeture
 
-  return e;
+  /*  
+    parcourir e, pour chaque tu prend etat dans at.trans, c = 2ieme indice du parcour
+    Pour un état on calcule chaque état suivant possible à partir du symbole c;
+  */
+  etatset_t eDelta;
+
+  for(etat_t temp : e){
+    eDelta.insert(at.trans[temp][c].begin(), at.trans[temp][c].end());
+  }
+
+  return eDelta;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+struct sAutoNDE{
+  // caractéristiques
+  size_t nb_etats;
+  size_t nb_symbs;
+  size_t nb_finaux;
+
+  etat_t initial;
+  // état initial
+
+  etatset_t finaux;
+  // états finaux : finaux_t peut être un int*, un tableau dynamique comme vector<int>
+  // ou une autre structure de donnée de votre choix.
+
+  trans_t trans;
+  // matrice de transition : trans_t peut être un int***, une structure dynamique 3D comme vector< vector< set<int> > >
+  // ou une autre structure de donnée de votre choix.
+  
+  epsilon_t epsilon; 
+  // transitions spontanées : epsilon_t peut être un int**, une structure dynamique 2D comme vector< set<int> >
+  // ou une autre structure de donnée de votre choix.
+};*/
 
 sAutoNDE Determinize(const sAutoNDE& at){
   sAutoNDE r;
 
-  //TODO définir cette fonction
+  r.nb_symbs = at.nb_symbs;
 
-  return r;
+  size_t nb_etats;
+  size_t nb_finaux;
+
+  etat_t initial;
+  etatset_t finaux;
+  trans_t trans;
+  epsilon_t epsilon;
+
+  etatset_t e; //tableau des epsilon cloture
+
+  Fermeture(at, e);
+
+  for(etat_t t : e){//Pour chaque états.
+    
+    for(int i = 0 ;  i < at.nb_symbs; i++){//Pour chaque symbole d'un état.
+      etatset_t temp;
+      temp = delta(at, e, ASCII_A + i);//ASCII_A + i renvoi le symbole.
+    }
+  }
+  return r; // renvoi le graph déterminisé.
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool Accept(const sAutoNDE& at, string str){
-  //TODO définir cette fonction
+  //fait marcher l'automate et accept si tombe sur un état final
   size_t i = 0;
   sAutoNDE aut = Determinize(at);
   etat_t et = aut.initial;
@@ -219,7 +272,6 @@ bool Accept(const sAutoNDE& at, string str){
 ////////////////////////////////////////////////////////////////////////////////
 
 ostream& operator<<(ostream& out, const sAutoNDE& at){
-  //TODO définir cette fonction
   out << at.nb_etats << " " << at.nb_symbs << " " << at.nb_finaux << "\n" << at.initial << "\n\n";
 
   for(std::set<etat_t>::iterator it = at.finaux.begin() ; it != at.finaux.end() ; ++it ){
@@ -247,7 +299,6 @@ ostream& operator<<(ostream& out, const sAutoNDE& at){
 ////////////////////////////////////////////////////////////////////////////////
 
 bool ToGraph(sAutoNDE& at, string path){
-  //TODO définir cette fonction
   std::ofstream outfile (path, std::ofstream::out);
   outfile << "diagraph finite_state_machine {\n\trankdir=LR;\n\tsize=\"10,10\"\n\n node [shape = doublecircle]; ";
   for(std::set<etat_t>::iterator it = at.finaux.begin(); it != at.finaux.end(); ++it){
@@ -416,57 +467,57 @@ int main(int argc, char* argv[] ){
       pos = pL - aLN;
     if(pS!=aSN+NBOPT)
       pos = pS - aSN;   
-      
+
     if(pos != -1){
       // (pos != -1) <=> on a trouvé une option longue ou courte
       if (DEBUG) cerr << "Key found (" << pos << ") : " << str << endl;
       switch (pos) {
         case 0: //acc
-          in1 = argv[++i];
-          acc = argv[++i];
-	  nb_ifiles = 1;
-	  nb_ofiles = 0;
-          break;
+        in1 = argv[++i];
+        acc = argv[++i];
+        nb_ifiles = 1;
+        nb_ofiles = 0;
+        break;
         case 1: //det
-          in1 = argv[++i];
-          out = argv[++i];
-	  nb_ifiles = 1;
-	  nb_ofiles = 1;
-          break;
+        in1 = argv[++i];
+        out = argv[++i];
+        nb_ifiles = 1;
+        nb_ofiles = 1;
+        break;
         case 2: //isdet
-          in1 = argv[++i];
-	  nb_ifiles = 1;
-	  nb_ofiles = 0;
-          break;
+        in1 = argv[++i];
+        nb_ifiles = 1;
+        nb_ofiles = 0;
+        break;
         case 3: //aut2expr
-          in1 = argv[++i];
-	  nb_ifiles = 1;
-	  nb_ofiles = 0;
-          break;
+        in1 = argv[++i];
+        nb_ifiles = 1;
+        nb_ofiles = 0;
+        break;
         case 4: //expr2aut
-          expr = argv[++i];
-          out = argv[++i];
-	  nb_ifiles = 0;
-	  nb_ofiles = 1;
-          break;
+        expr = argv[++i];
+        out = argv[++i];
+        nb_ifiles = 0;
+        nb_ofiles = 1;
+        break;
         case 5: //equ
-          in1 = argv[++i];
-          in2 = argv[++i];
-	  nb_ifiles = 2;
-	  nb_ofiles = 0;
-          break;
+        in1 = argv[++i];
+        in2 = argv[++i];
+        nb_ifiles = 2;
+        nb_ofiles = 0;
+        break;
         case 6: //nop
-          in1 = argv[++i];
-          out = argv[++i];
-	  nb_ifiles = 1;
-	  nb_ofiles = 1;
-          break;          
+        in1 = argv[++i];
+        out = argv[++i];
+        nb_ifiles = 1;
+        nb_ofiles = 1;
+        break;          
         case 7: //g
-          graphMode = true;
-          break;
+        graphMode = true;
+        break;
         default:
-          return EXIT_FAILURE;
-        }
+        return EXIT_FAILURE;
+      }
     }
     else{
       cerr << "Option inconnue "<< str << endl;
@@ -505,65 +556,65 @@ et effectuer l'action spécifiée. Atr stockera le résultat*/
   
   switch(act) {
   case 0: //acc
-    if (Accept(at1, acc)){
-      cout << "'" << acc << "' est accepté : OUI\n";
-    }
-    else {
-      cout << "'" << acc << "' est accepté : NON\n";
-    }
-    break;
-  case 1: //det
-    atr = Determinize(at1);
-    break;
-  case 2: //isdet
-    if (EstDeterministe(at1)){
-      cout << "l'automate fourni en entrée est déterministe : OUI\n";
-    }
-    else {
-      cout << "l'automate fourni en entrée est déterministe : NON\n";
-    }
-    break;
-  case 3: //aut2expr
-    expr =  Automate2ExpressionRationnelle(at1);
-    cout << "Expression rationnelle résultante :" << endl << expr << endl;
-    break;
-  case 4: //expr2aut
-    atr =  ExpressionRationnelle2Automate(expr);
-    break;
-  case 5: //equ
-    if (Equivalent(at1,at2)){
-      cout << "les deux automates sont équivalents : OUI\n";
-    }
-    else {
-      cout << "les deux automates sont équivalents : NON\n";
-    }
-    break;
-  case 6: //nop
-    atr = at1;
-    break;
-  default:
-    return EXIT_FAILURE;
+  if (Accept(at1, acc)){
+    cout << "'" << acc << "' est accepté : OUI\n";
   }
+  else {
+    cout << "'" << acc << "' est accepté : NON\n";
+  }
+  break;
+  case 1: //det
+  atr = Determinize(at1);
+  break;
+  case 2: //isdet
+  if (EstDeterministe(at1)){
+    cout << "l'automate fourni en entrée est déterministe : OUI\n";
+  }
+  else {
+    cout << "l'automate fourni en entrée est déterministe : NON\n";
+  }
+  break;
+  case 3: //aut2expr
+  expr =  Automate2ExpressionRationnelle(at1);
+  cout << "Expression rationnelle résultante :" << endl << expr << endl;
+  break;
+  case 4: //expr2aut
+  atr =  ExpressionRationnelle2Automate(expr);
+  break;
+  case 5: //equ
+  if (Equivalent(at1,at2)){
+    cout << "les deux automates sont équivalents : OUI\n";
+  }
+  else {
+    cout << "les deux automates sont équivalents : NON\n";
+  }
+  break;
+  case 6: //nop
+  atr = at1;
+  break;
+  default:
+  return EXIT_FAILURE;
+}
 
-  if (nb_ofiles == 1){
+if (nb_ofiles == 1){
     // on affiche le résultat
     // cout << "Automate résultat :\n----------------\n";
     // cout << atr;
 
     // écriture dans un fichier texte
-    ofstream f((out + ".txt").c_str(), ios::trunc); 
-    if(f.fail())
-      return EXIT_FAILURE;
-    f << atr;    
+  ofstream f((out + ".txt").c_str(), ios::trunc); 
+  if(f.fail())
+    return EXIT_FAILURE;
+  f << atr;    
 
     // génération d'un fichier graphviz
-    if(graphMode){
-      ToGraph(atr, out + ".gv");
-      system(("dot -Tpng " + out + ".gv -o " + out + ".png").c_str());
-    }
+  if(graphMode){
+    ToGraph(atr, out + ".gv");
+    system(("dot -Tpng " + out + ".gv -o " + out + ".png").c_str());
   }
-  
-  return EXIT_SUCCESS;
+}
+
+return EXIT_SUCCESS;
 }
 
 
