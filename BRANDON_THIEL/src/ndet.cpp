@@ -57,6 +57,8 @@ struct sAutoNDE{
 
 ////////////////////////////////////////////////////////////////////////////////
 
+//Prototypes
+ostream& operator<<(ostream& out, const sAutoNDE& at);
 bool FromFile(sAutoNDE& at, string path){
  ifstream myfile(path.c_str(), ios::in); 
   //un flux d'entree obtenu à partir du nom du fichier
@@ -131,6 +133,7 @@ bool FromFile(sAutoNDE& at, string path){
       at.trans[s][a-ASCII_A].insert(t);
     }
   }
+
   myfile.close();
   return true; 
 }
@@ -241,7 +244,7 @@ sAutoNDE Determinize(const sAutoNDE& at){
     
     for(int i = 0 ;  i < at.nb_symbs; i++){//Pour chaque symbole d'un état.
       etatset_t temp;
-      temp = delta(at, e, ASCII_A + i);//ASCII_A + i renvoi le symbole.
+      temp = Delta(at, e, ASCII_A + i);//ASCII_A + i renvoi le symbole.
     }
   }
   return r; // renvoi le graph déterminisé.
