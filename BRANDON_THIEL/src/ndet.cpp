@@ -386,7 +386,7 @@ string Automate2ExpressionRationnelle(sAutoNDE at){//Bryan
 
 	string expr;
 
-  	//Etape 1 : arrangé l'automate. A Coder
+  	//Etape 1 : arrangé l'automate. A Tester
 	sAutoNDE atPrime;//M'
 
 	atPrime.nb_symbs = at.nb_symbs;
@@ -395,11 +395,13 @@ string Automate2ExpressionRationnelle(sAutoNDE at){//Bryan
 
  	atPrime.initial = 0;
 
- 	atPrime.trans.push_back(vide);
+ 	atPrime.trans.push_back(vide);//permet d'init la table
+
 
  	int i = 1;
  	int j = ASCII_A;
 
+ 	//Remplissage de la table des états.
   	for(vector<etatset_t> temp : at.trans){//pour chaque états.
 
   		atPrime.trans.push_back(vide);
@@ -418,18 +420,45 @@ string Automate2ExpressionRationnelle(sAutoNDE at){//Bryan
 
   	i = 1;
 
-  	//epsilon = vector d'état set
+  	atPrime.epsilon[atPrime.initial].insert(1);//insertion de l'épsilon transition de l'état initial à l'état 1.
+
+  	//Remplissage de la table des epsilon transition.
   	for(etatset_t eTemp : at.epsilon){
   		for(etat_t t : eTemp){
-
+  			atPrime.epsilon[i].insert(t+1);
   		}
+  		i++;
   	}
 
-  	//epsilone pour etat 0 a état 1 et pour ancien finaux au nouvel état.
+  	for(etat_t fTemp : at.finaux){
+  		atPrime.epsilon[atPrime.nb_etats-1].insert(fTemp+1);
+  	}
 
-  	//atPrime.finaux.insert(0, atPrime.nb_etats); //Attention il ne doit y avoir que un seul final.
+
+  	//Remplissage de la table des etats finaux.
+  	atPrime.finaux.insert(atPrime.nb_etats-1);
 
   	//Etape 2 : le caractériser. A Coder
+
+  	//R = mot restant sur l'automate, i = état de départ, j= état d'arrivé, K = présedent état retiré de la liste.
+
+  	//attention 0 et dernier état ne sera pas caract.
+  	for(i = 1; i < atPrime.nb_etats-1; i++){
+  		if(atPrime.trans[i].size() == 1){
+
+  		}else if(atPrime.trans[i].size() > 1){
+  			for(etatset_t alphaTransi : atPrime.trans[i]){
+  			/*	if(boucle sur même état){
+  					expr = expr + '.' + j + '*';
+  				}else{
+  					expr = expr + '.' + j;
+  				}*/
+  			}
+  			j = ASCII_A;
+  		}
+  		
+  	}
+
   	return expr;
   }
 
